@@ -1,14 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "My Calendar",
-  "version": "1.0.0",
-  "description": "A dynamic calendar Chrome extension",
+  "name": "Ethiopian Calendar",
+  "version": "1.0",
+  "description": "Ethiopian Calendar Chrome Extension",
   "action": {
     "default_popup": "index.html",
-    "default_icon": "ICON.png"
+    "default_icon": {
+      "16": "ICON.png",
+      "48": "ICON.png",
+      "128": "ICON.png"
+    }
   },
   "permissions": [],
-  "icons": {
-    "32": "ICON.png"
-  }
+  "host_permissions": []
 }
