@@ -32,8 +32,6 @@ const toEthiopianDate = (gregorianDate) => {
   const gMonth = gregorianDate.getMonth();
   const gDay = gregorianDate.getDate();
 
-  console.log("📅 Gregorian Date:", gYear, gMonth + 1, gDay);
-
   // Ethiopian New Year is on September 11 (or September 12 in a leap year)
   const isLeapYear = ethiopianLeapYear(gYear - 8);
   const newYearDay = isLeapYear ? 12 : 11;
@@ -63,12 +61,6 @@ const toEthiopianDate = (gregorianDate) => {
     eMonth++;
   }
 
-  console.log(
-    "✅ Converted Ethiopian Date:",
-    eYear,
-    eMonth + 1,
-    remainingDays + 1
-  );
   return { year: eYear, month: eMonth, day: remainingDays + 1 };
 };
 
@@ -87,66 +79,97 @@ const firstDayOfMonth = (year, month) => {
   return toGregorianDate(year, month, 1).getDay();
 };
 
-// 6. Render Ethiopian Calendar
+// 6. Convert numbers to Ge'ez numerals
+const toGeezNumeral = (number) => {
+  const geezNumerals = ['፩', '፪', '፫', '፬', '፭', '፮', '፯', '፰', '፱', '፲', '፳', '፴', '፵', '፶', '፷', '፸', '፹', '፺', '፻'];
+  const arabicValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+  if (number === 0) return '፩';
+  if (number > 100) return number.toString(); // Fall back to Arabic numerals for larger numbers
+
+  let result = '';
+  let remaining = number;
+
+  for (let i = arabicValues.length - 1; i >= 0; i--) {
+    while (remaining >= arabicValues[i]) {
+      result += geezNumerals[i];
+      remaining -= arabicValues[i];
+    }
+  }
+
+  return result;
+};
+
+// 7. Define Ethiopic month and weekday names
+const ethiopicMonthNames = [
+  { name: "መስከረም", latin: "Meskerem" },
+  { name: "ጥቅምት", latin: "Tikimt" },
+  { name: "ኅዳር", latin: "Hidar" },
+  { name: "ታኅሳስ", latin: "Tahsas" },
+  { name: "ጥር", latin: "Tir" },
+  { name: "የካቲት", latin: "Yekatit" },
+  { name: "መጋቢት", latin: "Megabit" },
+  { name: "ሚያዝያ", latin: "Miazia" },
+  { name: "ግንቦት", latin: "Ginbot" },
+  { name: "ሰኔ", latin: "Sene" },
+  { name: "ሐምሌ", latin: "Hamle" },
+  { name: "ነሐሴ", latin: "Nehase" },
+  { name: "ጳጉሜን", latin: "Pagumé" },
+];
+
+const ethiopicWeekDays = ['እሑድ', 'ሰኞ', 'ማክሰኞ', 'ረቡዕ', 'ሐሙስ', 'ዓርብ', 'ቅዳሜ'];
+const latinWeekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// 8. Render Ethiopian Calendar
 const renderCalendar = () => {
   months[12].days = getPagumeDays(currYear);
 
-  const { year, month, day } = {
-    year: currYear,
-    month: currMonth,
-    day: currDay,
-  };
-  const currentMonth = months[month];
+  const currentMonth = months[currMonth];
+  const useGeez = document.getElementById('useGeez').checked;
 
-  document.querySelector(
-    ".current-date"
-  ).innerText = `${currentMonth.name} ${year}`;
+  // Update month and year display
+  const monthName = useGeez ? ethiopicMonthNames[currMonth].name : currentMonth.name;
+  const yearDisplay = useGeez ? toGeezNumeral(currYear) : currYear;
+  document.querySelector(".current-date").innerText = `${monthName} ${yearDisplay}`;
 
-  const daysTag = document.querySelector(".days");
+  // Update weekday names
+  const weekDays = document.querySelectorAll('.weeks li');
+  weekDays.forEach((day, index) => {
+    day.textContent = useGeez ? ethiopicWeekDays[index] : latinWeekDays[index];
+  });
+
+  // Calculate days
+  const firstDay = firstDayOfMonth(currYear, currMonth);
+  const prevMonthDays = currMonth === 0
+    ? getPagumeDays(currYear - 1)
+    : months[currMonth - 1].days;
+
   let liTag = "";
 
-  // Fix: Properly handle previous month days
-  const prevMonthDays =
-    month === 0
-      ? getPagumeDays(year - 1) // If it's Meskerem, previous month is Pagumé
-      : months[month - 1].days;
-
-  const firstDay = firstDayOfMonth(year, month);
-
+  // Previous month's days
   for (let i = firstDay - 1; i >= 0; i--) {
-    liTag += `<li class="inactive">${prevMonthDays - i}</li>`;
+    const dayNum = useGeez ? toGeezNumeral(prevMonthDays - i) : (prevMonthDays - i);
+    liTag += `<li class="inactive">${dayNum}</li>`;
   }
 
-  // Get the actual current Ethiopian date
+  // Current month's days
   const todayEthiopian = toEthiopianDate(new Date());
-  const isCurrentMonth =
-    todayEthiopian.year === currYear && todayEthiopian.month === currMonth;
+  const isCurrentMonth = todayEthiopian.year === currYear && todayEthiopian.month === currMonth;
 
   for (let i = 1; i <= currentMonth.days; i++) {
-    // Only highlight if it's the real today and the month is the same
     const isToday = isCurrentMonth && i === todayEthiopian.day ? "active" : "";
-    liTag += `<li class="${isToday}">${i}</li>`;
+    const dayNum = useGeez ? toGeezNumeral(i) : i;
+    liTag += `<li class="${isToday}">${dayNum}</li>`;
   }
 
-  daysTag.innerHTML = liTag;
+  document.querySelector(".days").innerHTML = liTag;
 };
 
-// Make sure the calendar opens with today's date highlighted
-let {
-  year: currYear,
-  month: currMonth,
-  day: currDay,
-} = toEthiopianDate(new Date());
+// Initialize current date
+let { year: currYear, month: currMonth, day: currDay } = toEthiopianDate(new Date());
 
-console.log(`🌍 Current Gregorian Date: ${new Date()}`);
-console.log(`📆 Ethiopian Date: ${currYear}-${currMonth + 1}-${currDay}`);
-
-renderCalendar();
-
-// 7. Handle Month Navigation
-const prevNextIcon = document.querySelectorAll(".icons span");
-
-prevNextIcon.forEach((icon) => {
+// Event Listeners
+document.querySelectorAll(".icons span").forEach((icon) => {
   icon.addEventListener("click", () => {
     if (icon.id === "prev") {
       currMonth--;
@@ -165,7 +188,9 @@ prevNextIcon.forEach((icon) => {
   });
 });
 
-// Ensure correct date is shown on popup load
+document.getElementById('useGeez').addEventListener('change', renderCalendar);
+
+// Initialize calendar on load
 window.addEventListener("load", () => {
   let { year, month, day } = toEthiopianDate(new Date());
   currYear = year;

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="am">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ethiopian Calendar</title>
+    <title>የኢትዮጵያ ዘመን አቆጣጠር - Ethiopian Calendar</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
     <!-- Google Material Symbols font -->
@@ -15,9 +15,20 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded&display=block"
     />
+    <!-- Add Noto Sans Ethiopic font for Ethiopic text -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="wrapper">
+      <div class="controls-container">
+        <div class="language-toggle">
+          <input type="checkbox" id="useGeez" />
+          <label for="useGeez">Use Ethiopic Script (ፊደል)</label>
+        </div>
+      </div>
       <header>
         <p class="current-date"></p>
         <div class="icons">
@@ -38,6 +49,5 @@
         <ul class="days"></ul>
       </div>
     </div>
-    
   </body>
 </html>
