@@ -77,7 +77,8 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 0 10px 15px 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  /* Reduced from 20px */
   border-bottom: 1.5px solid var(--border-color);
 }
 
@@ -113,7 +114,8 @@ header .icons span:hover {
   padding: 0 10px;
   display: flex;
   flex-direction: column;
-  min-height: 380px;
+  min-height: 320px;
+  /* Reduced from 380px */
   position: relative;
 }
 
@@ -127,7 +129,8 @@ header .icons span:hover {
 }
 
 .calendar .weeks {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  /* Reduced from 15px */
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -146,7 +149,8 @@ header .icons span:hover {
 }
 
 .calendar .days {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  /* Reduced from 20px */
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -188,35 +192,40 @@ header .icons span:hover {
 /* Holiday styles */
 .calendar .days li.holiday {
   position: relative;
-  color: var(--primary-color);
+  color: #d35400;
   font-weight: 500;
 }
 
 .calendar .days li.holiday::after {
-  content: "•";
+  content: "";
   position: absolute;
-  bottom: 1px;
-  font-size: 1.2rem;
-  color: var(--primary-color);
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #d35400;
+  border-radius: 50%;
 }
 
 .calendar .days li.holiday:hover::before {
   content: attr(data-holiday);
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% + 5px);
   left: 50%;
   transform: translateX(-50%);
-  padding: 5px 10px;
-  background: rgba(0, 0, 0, 0.8);
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
   color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.85rem;
   white-space: nowrap;
   z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Ethiopic specific styles */
-.ethiopic-text, 
+.ethiopic-text,
 [data-geez="true"] {
   font-family: "Noto Sans Ethiopic", sans-serif;
 }
@@ -240,13 +249,68 @@ header .icons span:hover {
   margin: 2px 5px;
 }
 
-/* Ethiopic holiday specific styles */
-.calendar .days li[data-geez="true"].holiday {
-  font-weight: 500;
+/* Holidays section */
+.holidays-section {
+  margin-top: 5px;
+  /* Reduced from 10px */
+  padding: 12px 15px;
+  border-top: 1.5px solid var(--border-color);
+  background: var(--hover-bg);
+  border-radius: 8px;
 }
 
-.calendar .days li[data-geez="true"].holiday::before {
-  font-family: "Noto Sans Ethiopic", sans-serif;
+.holidays-section h3 {
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.holidays-section h3::before {
+  content: "🎉";
+  font-size: 1.1rem;
+}
+
+.holidays-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.holiday-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.holiday-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.holiday-date {
+  color: #d35400;
+  font-weight: 500;
+  min-width: 24px;
+  text-align: center;
+}
+
+.holiday-name {
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.no-holidays {
+  color: var(--inactive-color);
+  font-size: 0.9rem;
+  font-style: italic;
+  padding: 6px 8px;
 }
 
 /* Responsive adjustments */
@@ -257,7 +321,8 @@ header .icons span:hover {
   }
 
   .calendar {
-    min-height: 400px;
+    min-height: 340px;
+    /* Reduced from 400px */
   }
 
   .calendar .days li {
@@ -291,7 +356,8 @@ header .icons span:hover {
   }
 
   .calendar {
-    min-height: 360px;
+    min-height: 300px;
+    /* Reduced from 360px */
   }
 
   .calendar .days li {
@@ -357,16 +423,28 @@ header .icons span:hover {
   }
 
   .calendar .days li.holiday {
-    color: #b076d1;
+    color: #e67e22;
   }
 
   .calendar .days li.holiday::after {
-    color: #b076d1;
+    background-color: #e67e22;
   }
 
   .calendar .days li.holiday:hover::before {
     background: rgba(255, 255, 255, 0.9);
     color: #333;
+  }
+
+  .holidays-section {
+    background: var(--hover-bg);
+  }
+
+  .holiday-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .holiday-date {
+    color: #e67e22;
   }
 
   .calendar .weeks li {
@@ -375,5 +453,46 @@ header .icons span:hover {
 
   .language-toggle label {
     color: #e0e0e0;
+  }
+}
+
+/* Ethiopian Time Display */
+.ethiopian-time {
+  margin-top: 5px;
+  padding: 12px 15px;
+  border-top: 1.5px solid var(--border-color);
+  background: var(--hover-bg);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.ethiopian-time label {
+  color: var(--text-color);
+  margin-right: 10px;
+  font-size: 0.95rem;
+}
+
+#ethiopian-time-display {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* Dark mode support for Ethiopian time */
+@media (prefers-color-scheme: dark) {
+  .ethiopian-time {
+    background: var(--hover-bg);
+  }
+  
+  .ethiopian-time label,
+  #ethiopian-time-display {
+    color: var(--text-color);
+  }
+}
+
+/* Responsive adjustments for Ethiopian time */
+@media screen and (max-width: 480px) {
+  .ethiopian-time {
+    font-size: 0.9rem;
+    padding: 10px;
   }
 }

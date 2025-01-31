@@ -1,53 +1,54 @@
 <!DOCTYPE html>
-<html lang="am">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>የኢትዮጵያ ዘመን አቆጣጠር - Ethiopian Calendar</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
-    <!-- Google Material Symbols font -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght@20..48"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded&display=block"
-    />
-    <!-- Add Noto Sans Ethiopic font for Ethiopic text -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div class="wrapper">
-      <div class="controls-container">
-        <div class="language-toggle">
-          <input type="checkbox" id="useGeez" />
-          <label for="useGeez">Use Ethiopic Script (ፊደል)</label>
-        </div>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethiopian Calendar</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Font Awesome CDN for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="current-date"></div>
+      <div class="icons">
+        <span id="prev" class="material-symbols-rounded">
+          <i class="fas fa-chevron-left"></i>
+        </span>
+        <span id="next" class="material-symbols-rounded">
+          <i class="fas fa-chevron-right"></i>
+        </span>
       </div>
-      <header>
-        <p class="current-date"></p>
-        <div class="icons">
-          <span id="prev" class="material-symbols-rounded">chevron_left</span>
-          <span id="next" class="material-symbols-rounded">chevron_right</span>
-        </div>
-      </header>
-      <div class="calendar">
-        <ul class="weeks">
-          <li>Sun</li>
-          <li>Mon</li>
-          <li>Tue</li>
-          <li>Wed</li>
-          <li>Thu</li>
-          <li>Fri</li>
-          <li>Sat</li>
-        </ul>
-        <ul class="days"></ul>
+    </header>
+    <div class="calendar">
+      <div class="language-toggle">
+        <input type="checkbox" id="useGeez" checked>
+        <label for="useGeez">አማርኛ</label>
       </div>
+      <ul class="weeks">
+        <li>Sun</li>
+        <li>Mon</li>
+        <li>Tue</li>
+        <li>Wed</li>
+        <li>Thu</li>
+        <li>Fri</li>
+        <li>Sat</li>
+      </ul>
+      <ul class="days"></ul>
     </div>
-  </body>
+    <div class="holidays">
+      <h3 class="holidays-title">Holidays</h3>
+      <ul class="holidays-list"></ul>
+    </div>
+    <div class="ethiopian-time">
+      <label>Ethiopian Time:</label>
+      <span id="ethiopian-time-display"></span>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
 </html>
