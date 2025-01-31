@@ -34,28 +34,30 @@ const toEthiopianDate = (gregorianDate) => {
 
   console.log("📅 Gregorian Date:", gYear, gMonth + 1, gDay);
 
-  let newYearDate = new Date(gYear, 8, 11);
-  if (ethiopianLeapYear(gYear - 8)) {
-    newYearDate.setDate(12);
+  // Ethiopian New Year is on September 11 (or September 12 in a leap year)
+  const isLeapYear = ethiopianLeapYear(gYear - 8);
+  const newYearDay = isLeapYear ? 12 : 11;
+
+  // Determine if the Gregorian date is before or after the Ethiopian New Year
+  const isBeforeNewYear = gMonth < 8 || (gMonth === 8 && gDay < newYearDay);
+
+  // Calculate the Ethiopian year
+  const eYear = isBeforeNewYear ? gYear - 8 : gYear - 7;
+
+  // Calculate the number of days since the Ethiopian New Year
+  const newYearDate = new Date(gYear, 8, newYearDay);
+  if (isBeforeNewYear) {
+    newYearDate.setFullYear(gYear - 1);
   }
 
-  let diffDays = Math.floor(
+  const diffDays = Math.floor(
     (gregorianDate - newYearDate) / (1000 * 60 * 60 * 24)
   );
 
-  let eYear = gYear - 8 + (gMonth >= 8 ? 1 : 0);
   let eMonth = 0,
     remainingDays = diffDays;
 
-  if (remainingDays < 0) {
-    eYear -= 1;
-    newYearDate = new Date(gYear - 1, 8, 11);
-    diffDays = Math.floor(
-      (gregorianDate - newYearDate) / (1000 * 60 * 60 * 24)
-    );
-    remainingDays = diffDays;
-  }
-
+  // Calculate the Ethiopian month and day
   while (remainingDays >= (eMonth === 12 ? getPagumeDays(eYear) : 30)) {
     remainingDays -= eMonth === 12 ? getPagumeDays(eYear) : 30;
     eMonth++;
@@ -72,7 +74,7 @@ const toEthiopianDate = (gregorianDate) => {
 
 // 4. Convert from Ethiopian to Gregorian Date
 const toGregorianDate = (ethiopianYear, ethiopianMonth, ethiopianDay) => {
-  const gYear = ethiopianYear + 7;
+  const gYear = ethiopianYear + 8;
   let newYearDate = new Date(gYear, 8, 11);
   if (ethiopianLeapYear(ethiopianYear)) newYearDate.setDate(12);
 
@@ -103,7 +105,12 @@ const renderCalendar = () => {
   const daysTag = document.querySelector(".days");
   let liTag = "";
 
-  const prevMonthDays = month === 0 ? months[11].days : months[month - 1].days;
+  // Fix: Properly handle previous month days
+  const prevMonthDays =
+    month === 0
+      ? getPagumeDays(year - 1) // If it's Meskerem, previous month is Pagumé
+      : months[month - 1].days;
+
   const firstDay = firstDayOfMonth(year, month);
 
   for (let i = firstDay - 1; i >= 0; i--) {
