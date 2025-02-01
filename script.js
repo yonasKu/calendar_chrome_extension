@@ -2,6 +2,7 @@
  * Ethiopian Calendar Implementation
  * A professional implementation of the Ethiopian calendar system
  * with holiday support, Easter calculation, time conversion, and bilingual display
+ * Including Hijri calendar calculations for Islamic holidays
  */
 
 // Initialize console
@@ -61,21 +62,12 @@ const ETHIOPIAN_HOLIDAYS = {
   5: [ // Yekatit
     { day: 23, name: "አድዋ ድል ቀን", latinName: "Victory of Adwa" }
   ],
-  6: [ // Megabit
-    { day: 22, name: "ኢድ አልፈጥር", latinName: "Eid al-Fitr" }
-  ],
   7: [ // Miazia
     { day: 23, name: "የላብ አደሮች ቀን", latinName: "Labour Day" },
     { day: 27, name: "የአርበኞች ቀን", latinName: "Patriots' Day" }
   ],
   8: [ // Ginbot
     { day: 20, name: "ደርግ የወደቀበት ቀን", latinName: "National Day" }
-  ],
-  9: [ // Sene
-    { day: 30, name: "አረፋ", latinName: "Eid al-Adha" }
-  ],
-  11: [ // Nehasse
-    { day: 30, name: "መውሊድ", latinName: "Mawlid" }
   ]
 };
 
@@ -152,6 +144,80 @@ class EthiopianCalendarUtils {
       timePeriod,
       formatted: `${ethiopianHours}:${String(minutes).padStart(2, '0')} ${timePeriod.latin}`
     };
+  }
+
+  static hijriToGregorian(hijriYear, hijriMonth, hijriDay) {
+    const JDN = Math.floor((11 * hijriYear + 3) / 30) +
+      354 * hijriYear +
+      30 * hijriMonth -
+      Math.floor((hijriMonth - 1) / 2) +
+      hijriDay + 1948440 - 385;
+
+    let L = JDN + 68569;
+    const N = Math.floor((4 * L) / 146097);
+    L = L - Math.floor((146097 * N + 3) / 4);
+    const I = Math.floor((4000 * (L + 1)) / 1461001);
+    L = L - Math.floor((1461 * I) / 4) + 31;
+    const J = Math.floor((80 * L) / 2447);
+    const day = L - Math.floor((2447 * J) / 80);
+    L = Math.floor(J / 11);
+    const month = J + 2 - 12 * L;
+    const year = 100 * (N - 49) + I + L;
+
+    return new Date(year, month - 1, day);
+  }
+
+  static getIslamicHolidays(year) {
+    const hijriYear = year + 622 - 8; // Approximate Hijri Year
+
+    // Convert Hijri Dates to Gregorian
+    const eidFitr = this.hijriToGregorian(hijriYear, 10, 1);  // 1st Shawwal
+    const eidAdha = this.hijriToGregorian(hijriYear, 12, 10); // 10th Dhu al-Hijjah
+    const mawlid = this.hijriToGregorian(hijriYear, 3, 12);   // 12th Rabi' al-Awwal
+
+    // Convert Gregorian to Ethiopian Calendar
+    const ethiopianEidFitr = EthiopianDateConverter.toEthiopian(eidFitr);
+    const ethiopianEidAdha = EthiopianDateConverter.toEthiopian(eidAdha);
+    const ethiopianMawlid = EthiopianDateConverter.toEthiopian(mawlid);
+
+    return [
+      {
+        month: ethiopianEidFitr.month,
+        day: ethiopianEidFitr.day,
+        name: "ኢድ አልፈጥር",
+        latinName: "Eid al-Fitr"
+      },
+      {
+        month: ethiopianEidAdha.month,
+        day: ethiopianEidAdha.day,
+        name: "አረፋ",
+        latinName: "Eid al-Adha"
+      },
+      {
+        month: ethiopianMawlid.month,
+        day: ethiopianMawlid.day,
+        name: "መውሊድ",
+        latinName: "Mawlid"
+      }
+    ];
+  }
+
+  static updateIslamicHolidays(year) {
+    const islamicHolidays = this.getIslamicHolidays(year);
+
+    // Clear old Islamic holidays
+    Object.keys(ETHIOPIAN_HOLIDAYS).forEach(month => {
+      ETHIOPIAN_HOLIDAYS[month] = ETHIOPIAN_HOLIDAYS[month].filter(h =>
+        !["Eid al-Fitr", "Eid al-Adha", "Mawlid"].includes(h.latinName));
+    });
+
+    // Add new calculated holidays
+    islamicHolidays.forEach(holiday => {
+      if (!ETHIOPIAN_HOLIDAYS[holiday.month]) {
+        ETHIOPIAN_HOLIDAYS[holiday.month] = [];
+      }
+      ETHIOPIAN_HOLIDAYS[holiday.month].push(holiday);
+    });
   }
 
   static getEthiopianEaster(year) {
@@ -231,6 +297,10 @@ class EthiopianCalendarRenderer {
     this.currDate = EthiopianDateConverter.toEthiopian(new Date());
     this.currYear = this.currDate.year;
     this.currMonth = this.currDate.month;
+
+    // Update Islamic holidays when calendar initializes
+    EthiopianCalendarUtils.updateIslamicHolidays(this.currYear);
+
     this.setupEventListeners();
     this.initializeTime();
   }
@@ -240,9 +310,9 @@ class EthiopianCalendarRenderer {
       const timeDisplay = document.createElement('div');
       timeDisplay.className = 'ethiopian-time';
       timeDisplay.innerHTML = `
-            <label id="time-label"></label>
-            <span id="ethiopian-time-display"></span>
-        `;
+        <label id="time-label"></label>
+        <span id="ethiopian-time-display"></span>
+      `;
       document.querySelector('.wrapper').appendChild(timeDisplay);
     }
 
@@ -252,9 +322,14 @@ class EthiopianCalendarRenderer {
 
   updateTime() {
     const timeDisplay = document.getElementById('ethiopian-time-display');
-    if (timeDisplay) {
+    const timeLabel = document.getElementById('time-label');
+
+    if (timeDisplay && timeLabel) {
       const useGeez = document.getElementById('useGeez').checked;
       const time = EthiopianCalendarUtils.toEthiopianTime(new Date());
+
+      timeLabel.textContent = useGeez ? "የኢትዮጵያ ሰዓት፡" : "Ethiopian Time:";
+
       timeDisplay.textContent = useGeez ?
         `${EthiopianCalendarUtils.toGeezNumeral(time.hours)}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.minutes))} ${time.timePeriod.amharic}` :
         `${time.hours}:${time.minutes} ${time.timePeriod.latin}`;
@@ -277,12 +352,14 @@ class EthiopianCalendarRenderer {
       if (this.currMonth < 0) {
         this.currMonth = 12;
         this.currYear--;
+        EthiopianCalendarUtils.updateIslamicHolidays(this.currYear);
       }
     } else {
       this.currMonth++;
       if (this.currMonth > 12) {
         this.currMonth = 0;
         this.currYear++;
+        EthiopianCalendarUtils.updateIslamicHolidays(this.currYear);
       }
     }
     this.render();
@@ -301,7 +378,7 @@ class EthiopianCalendarRenderer {
         ETHIOPIAN_HOLIDAYS[easter.month].push({
           day: easter.day,
           name: "ፋሲካ",
-          latinName: "Easter (Fasika)"
+          latinName: "Easter"
         });
       }
 

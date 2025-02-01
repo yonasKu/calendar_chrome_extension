@@ -29,6 +29,8 @@ body {
   padding: 10px;
 }
 
+
+
 .wrapper {
   width: var(--wrapper-width);
   min-width: 380px;
@@ -43,8 +45,9 @@ body {
 
 .controls-container {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+
   padding: 0 10px;
 }
 
@@ -259,6 +262,7 @@ header .icons span:hover {
   border-radius: 8px;
 }
 
+
 .holidays-section h3 {
   color: var(--text-color);
   font-size: 1rem;
@@ -447,6 +451,11 @@ header .icons span:hover {
     color: #e67e22;
   }
 
+  .holidays-title {
+    color: #e0e0e0;
+  }
+
+
   .calendar .weeks li {
     color: #e0e0e0;
   }
@@ -482,7 +491,7 @@ header .icons span:hover {
   .ethiopian-time {
     background: var(--hover-bg);
   }
-  
+
   .ethiopian-time label,
   #ethiopian-time-display {
     color: var(--text-color);
