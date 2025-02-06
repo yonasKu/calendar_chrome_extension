@@ -717,24 +717,3 @@ header .icons span:hover {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
-.approximate-date {
-  color: #e67e22;
-  font-weight: bold;
-  margin-left: 2px;
-  cursor: help;
-}
-
-.holiday-note {
-  color: var(--inactive-color);
-  font-size: 0.8em;
-  font-style: italic;
-  margin-left: 4px;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .holiday-note {
-    color: #888;
-  }
-}

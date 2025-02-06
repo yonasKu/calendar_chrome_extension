@@ -80,41 +80,46 @@ export class EthiopianDateConverter {
     return day <= daysInMonth;
   }
 
-  static orthodoxEaster(year) {
-    // Julian Calendar Computus for Orthodox Easter
-    let a = year % 19;
-    let b = Math.floor(year / 100);
-    let c = year % 100;
-    let d = Math.floor(b / 4);
-    let e = b % 4;
-    let f = Math.floor((b + 8) / 25);
-    let g = Math.floor((b - f + 1) / 3);
-    let h = (19 * a + b - d - g + 15) % 30;
-    let i = Math.floor(c / 4);
-    let k = c % 4;
-    let l = (32 + 2 * e + 2 * i - h - k) % 7;
-    let m = Math.floor((a + 11 * h + 22 * l) / 451);
-    let month = Math.floor((h + l - 7 * m + 114) / 31);
-    let day = ((h + l - 7 * m + 114) % 31) + 1;
+  static getEthiopianEaster(ethiopianYear) {
+    console.log('📅 Getting Ethiopian Easter for year:', ethiopianYear);
 
-    // Use Julian Easter date directly
-    let julianEaster = new Date(year, month - 1, day);
+    // Get both possible Gregorian years for this Ethiopian year
+    const gregorianYears = this.ethiopianToGregorianYear(ethiopianYear);
+    console.log('Gregorian Year Range:', gregorianYears);
 
-    console.log('🐣 Easter Calculation:');
-    console.log('Year (input):', year);
-    console.log('Julian Easter:', julianEaster.toDateString());
+    // Calculate Easter for both possible years
+    const easterDates = [];
+    [gregorianYears.start, gregorianYears.end].forEach(gYear => {
+      // Calculate Orthodox Easter in Julian calendar
+      let a = gYear % 19;
+      let b = Math.floor(gYear / 100);
+      let c = gYear % 100;
+      let d = Math.floor(b / 4);
+      let e = b % 4;
+      let f = Math.floor((b + 8) / 25);
+      let g = Math.floor((b - f + 1) / 3);
+      let h = (19 * a + b - d - g + 15) % 30;
+      let i = Math.floor(c / 4);
+      let k = c % 4;
+      let l = (32 + 2 * e + 2 * i - h - k) % 7;
+      let m = Math.floor((a + 11 * h + 22 * l) / 451);
+      let month = Math.floor((h + l - 7 * m + 114) / 31);
+      let day = ((h + l - 7 * m + 114) % 31) + 1;
 
-    return julianEaster; // Return Julian date instead of Gregorian
-  }
+      // Convert to Gregorian date
+      const gregorianDate = new Date(Date.UTC(gYear, month - 1, day));
 
-  static getEthiopianEaster(year) {
-    console.log('📅 Getting Ethiopian Easter for year:', year);
-    let julianEaster = this.orthodoxEaster(year + 8); // Convert Ethiopian year to Julian
-    let ethiopianEaster = this.toEthiopian(julianEaster);
+      // Convert to Ethiopian
+      const ethiopianDate = this.toEthiopian(gregorianDate);
 
-    console.log('Julian Easter:', julianEaster.toDateString());
+      if (ethiopianDate.year === ethiopianYear) {
+        easterDates.push(ethiopianDate);
+      }
+    });
+
+    // There should only be one valid Easter date for the Ethiopian year
+    const ethiopianEaster = easterDates[0];
     console.log('Ethiopian Easter:', ethiopianEaster);
-
     return ethiopianEaster;
   }
 
@@ -192,7 +197,7 @@ export class EthiopianDateConverter {
     // Calculate Hijri years with a wider range to ensure we catch all holidays
     const hijriYearStart = this.gregorianToHijriYear(gregorianYears.start);
     const hijriYearEnd = this.gregorianToHijriYear(gregorianYears.end);
-    
+
     // Add buffer years to ensure we don't miss any holidays
     const hijriYears = [hijriYearStart - 1, hijriYearStart, hijriYearEnd, hijriYearEnd + 1];
     console.log('3️⃣ Hijri Years to check:', hijriYears);
@@ -204,7 +209,7 @@ export class EthiopianDateConverter {
       // Major public holidays (no work days)
       [10, 1, "ኢድ አልፈጥር", "Eid al-Fitr", "Subject to lunar sighting", true],
       [12, 10, "አረፋ", "Eid al-Adha", "Subject to lunar sighting", true],
-      
+
       // Religious observances (not public holidays)
       [3, 12, "መውሊድ", "Prophet's Birthday", "Religious observance", false]
     ];
@@ -234,9 +239,9 @@ export class EthiopianDateConverter {
 
     // Remove duplicates
     const uniqueHolidays = holidays.filter((holiday, index, self) =>
-      index === self.findIndex((h) => 
-        h.month === holiday.month && 
-        h.day === holiday.day && 
+      index === self.findIndex((h) =>
+        h.month === holiday.month &&
+        h.day === holiday.day &&
         h.name === holiday.name
       )
     );
@@ -246,7 +251,8 @@ export class EthiopianDateConverter {
   }
 
   static julianToGregorian(julianDay) {
-    const z = Math.floor(julianDay + 0.5);
+    // Subtract the 6-hour offset before conversion
+    const z = Math.floor(julianDay - 0.25 + 0.5);
     const a = Math.floor((z - 1867216.25) / 36524.25);
     const b = z + 1 + a - Math.floor(a / 4);
     const c = b + 1524;
@@ -260,6 +266,17 @@ export class EthiopianDateConverter {
 
     // Return a UTC Date object
     return new Date(Date.UTC(year, month - 1, day));
+  }
+
+  static gregorianToJulian(date) {
+    // Convert Gregorian date to Julian day number
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    return Math.floor(367 * year - Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4)
+      - Math.floor(3 * (Math.floor((year + (month - 9) / 7) / 100) + 1) / 4)
+      + Math.floor(275 * month / 9) + day + 1721028.5);
   }
 
 }
