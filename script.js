@@ -28,49 +28,82 @@ class EthiopianCalendarRenderer {
 
   initializeTime() {
     this.updateTime();
-    setInterval(() => this.updateTime(), 60000);
+    setInterval(() => this.updateTime(), 1000);
   }
 
   updateTime() {
     const timeDisplay = document.getElementById('ethiopian-time-display');
     const timeLabel = document.getElementById('time-label');
-    if (!timeDisplay || !timeLabel) return;
+    const currentDateEl = document.getElementById('current-ethiopian-date');
+    if (!timeDisplay || !timeLabel || !currentDateEl) return;
 
     const useGeez = document.getElementById('useGeez')?.checked || false;
-    const time = EthiopianCalendarUtils.toEthiopianTime(new Date());
+    const now = new Date();
+    const time = EthiopianCalendarUtils.toEthiopianTime(now);
+    const todayEthiopian = EthiopianDateConverter.toEthiopian(now);
 
+    // Update time display
     timeLabel.textContent = useGeez ? "የኢትዮጵያ ሰዓት፡" : "Ethiopian Time:";
     timeDisplay.textContent = useGeez
-      ? `${EthiopianCalendarUtils.toGeezNumeral(time.hours)}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.minutes))} ${time.timePeriod.amharic}`
-      : `${time.hours}:${time.minutes} ${time.timePeriod.latin}`;
+        ? `${EthiopianCalendarUtils.toGeezNumeral(time.hours)}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.minutes))}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.seconds))} ${time.timePeriod.amharic}`
+        : `${time.hours}:${time.minutes}:${time.seconds} ${time.timePeriod.latin}`;
+
+    // Update date display with both Ethiopian and Gregorian dates
+    const currentMonth = ETHIOPIAN_MONTHS[todayEthiopian.month];
+    const monthName = useGeez ? currentMonth.amharic : currentMonth.name;
+    const yearDisplay = useGeez
+        ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.year)
+        : todayEthiopian.year;
+    const dayDisplay = useGeez
+        ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.day)
+        : todayEthiopian.day;
+
+    // Format Gregorian date
+    const gregorianDate = now.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    // Combine Ethiopian and Gregorian dates
+    currentDateEl.innerHTML = `
+        <div>${monthName} ${dayDisplay}, ${yearDisplay}</div>
+        <div style="font-size: 0.55em; color: var(--inactive-color);">${gregorianDate}</div>
+    `;
   }
 
   setupEventListeners() {
-    document.querySelectorAll(".icons span").forEach(icon => {
-      icon.addEventListener("click", () => this.handleMonthChange(icon.id));
+    document.querySelector("#prev").addEventListener("click", () => {
+        if (!document.querySelector("#prev").classList.contains('disabled')) {
+            this.handleMonthChange("prev");
+        }
+    });
+    
+    document.querySelector("#next").addEventListener("click", () => {
+        if (!document.querySelector("#next").classList.contains('disabled')) {
+            this.handleMonthChange("next");
+        }
     });
 
     const useGeezCheckbox = document.getElementById('useGeez');
     if (useGeezCheckbox) {
-      useGeezCheckbox.addEventListener('change', () => {
-        this.render();
-        this.updateTime();
-      });
+        useGeezCheckbox.addEventListener('change', () => {
+            this.render();
+            this.updateTime();
+        });
     }
   }
 
   handleMonthChange(direction) {
     if (direction === "prev") {
       this.currMonth--;
-      if (this.currMonth < 0) {
-        this.currMonth = 12;
-        this.currYear--;
+      if (this.currMonth < 0) {  // If we go below Meskerem (month 0)
+        return; // Stop at the beginning of the year
       }
     } else {
       this.currMonth++;
-      if (this.currMonth > 12) {
-        this.currMonth = 0;
-        this.currYear++;
+      if (this.currMonth > 12) { // If we go beyond Pagumé (month 12)
+        return; // Stop at the end of the year
       }
     }
     this.render();
@@ -83,31 +116,64 @@ class EthiopianCalendarRenderer {
       ETHIOPIAN_MONTHS[12].days = EthiopianCalendarUtils.getPagumeDays(this.currYear);
     }
 
+    // Disable navigation buttons at year boundaries
+    const prevButton = document.getElementById('prev');
+    const nextButton = document.getElementById('next');
+    if (prevButton) {
+      prevButton.classList.toggle('disabled', this.currMonth === 0);
+    }
+    if (nextButton) {
+      nextButton.classList.toggle('disabled', this.currMonth === 12);
+    }
+
     this.renderHeader(useGeez);
     this.renderCalendarDays(useGeez);
     this.renderHolidays(useGeez);
   }
 
   renderHeader(useGeez) {
+    // For the calendar header (navigation)
     const currentMonth = ETHIOPIAN_MONTHS[this.currMonth];
-    if (!currentMonth) {
-      console.error('Month data not found for:', this.currMonth);
-      return;
-    }
+    if (!currentMonth) return;
 
     const monthName = useGeez ? currentMonth.amharic : currentMonth.name;
     const yearDisplay = useGeez
       ? EthiopianCalendarUtils.toGeezNumeral(this.currYear)
       : this.currYear;
 
-    const currentDateElement = document.querySelector(".current-date");
-    if (currentDateElement) {
-      currentDateElement.innerText = `${monthName} ${yearDisplay}`;
-    }
+    // Calculate Gregorian dates for navigation
+    const firstDayGreg = EthiopianDateConverter.toGregorian(this.currYear, this.currMonth, 1);
+    const lastDayGreg = EthiopianDateConverter.toGregorian(this.currYear, this.currMonth, currentMonth.days);
 
-    document.querySelectorAll('.weeks li').forEach((day, index) => {
-      day.textContent = useGeez ? WEEK_DAYS.amharic[index] : WEEK_DAYS.latin[index];
-    });
+    // Set navigation month labels
+    document.querySelector('.prev-month .gregorian-label').textContent =
+      firstDayGreg.toLocaleDateString('en-US', { month: 'short' });
+
+    document.querySelector('.next-month .gregorian-label').textContent =
+      lastDayGreg.toLocaleDateString('en-US', { month: 'short' });
+
+    // Set current viewed month
+    document.querySelector('.ethiopian-month').textContent = `${monthName} ${yearDisplay}`;
+    document.querySelector('.gregorian-month').textContent =
+      firstDayGreg.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
+  }
+
+  updateCurrentDate(useGeez) {
+    const today = new Date();
+    const todayEthiopian = EthiopianDateConverter.toEthiopian(today);
+
+    const currentMonth = ETHIOPIAN_MONTHS[todayEthiopian.month];
+    const monthName = useGeez ? currentMonth.amharic : currentMonth.name;
+    const yearDisplay = useGeez
+      ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.year)
+      : todayEthiopian.year;
+    const dayDisplay = useGeez
+      ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.day)
+      : todayEthiopian.day;
+
+    // Update current date display next to time
+    document.getElementById('current-ethiopian-date').textContent =
+      `${monthName} ${dayDisplay} ${yearDisplay}`;
   }
 
   renderCalendarDays(useGeez) {
@@ -164,25 +230,37 @@ class EthiopianCalendarRenderer {
     const allHolidays = [
       ...monthHolidays,
       ...islamicHolidays,
-      ...(easterHolidays.goodFriday.month === this.currMonth ? [easterHolidays.goodFriday] : []),
-      ...(easterHolidays.easter.month === this.currMonth ? [easterHolidays.easter] : [])
+      ...(easterHolidays.goodFriday?.month === this.currMonth ? [easterHolidays.goodFriday] : []),
+      ...(easterHolidays.easter?.month === this.currMonth ? [easterHolidays.easter] : [])
     ];
 
     let html = "";
     for (let i = 1; i <= currentMonth.days; i++) {
-      const isToday = isCurrentMonth && i === todayEthiopian.day ? "active" : "";
+      const isToday = isCurrentMonth && i === todayEthiopian.day;
       const holiday = allHolidays.find(h => h.day === i);
-      const holidayClass = holiday ? "holiday" : "";
-      const holidayAttr = holiday
-        ? `data-holiday="${useGeez ? holiday.name : holiday.latinName}"`
-        : "";
-      const dayNum = useGeez ? EthiopianCalendarUtils.toGeezNumeral(i) : i;
 
-      html += `<li class="${isToday} ${holidayClass}" ${holidayAttr}>${dayNum}</li>`;
+      // Get corresponding Gregorian date
+      const gregDate = EthiopianDateConverter.toGregorian(this.currYear, this.currMonth, i);
+      const gregDay = gregDate.getDate();
+
+      const ethiopianDay = useGeez ? EthiopianCalendarUtils.toGeezNumeral(i) : i;
+
+      html += `
+        <li class="${isToday ? 'active' : ''} ${holiday ? 'holiday' : ''}" 
+            ${holiday ? `data-holiday="${useGeez ? holiday.name : holiday.latinName}"` : ''}>
+          <span class="gregorian-date">${gregDay}</span>
+          <span class="ethiopian-date">${ethiopianDay}</span>
+        </li>
+      `;
     }
     return html;
   }
 
+  getAllHolidays() {
+    // Implement the logic to fetch all holidays for the current Ethiopian year
+    // This is a placeholder and should be replaced with the actual implementation
+    return [];
+  }
 
   renderHolidays(useGeez) {
     // Get base holidays for this month
@@ -190,7 +268,7 @@ class EthiopianCalendarRenderer {
 
     // Get Easter-related holidays
     const easterHolidays = EthiopianDateConverter.getEasterRelatedHolidays(this.currYear);
-    
+
     // Get Islamic holidays for current Ethiopian year
     const islamicHolidays = EthiopianDateConverter.getIslamicHolidays(this.currYear)
       .filter(holiday => holiday.month === this.currMonth);
@@ -214,16 +292,33 @@ class EthiopianCalendarRenderer {
     // Sort holidays by day
     monthHolidays.sort((a, b) => a.day - b.day);
 
-    holidaysListEl.innerHTML = monthHolidays.map(holiday => `
-      <li class="holiday-item">
-        <span class="holiday-date">
-          ${useGeez ? EthiopianCalendarUtils.toGeezNumeral(holiday.day) : holiday.day}
-        </span>
-        <span class="holiday-name">
-          ${useGeez ? holiday.name : holiday.latinName}
-        </span>
-      </li>
-    `).join('');
+    holidaysListEl.innerHTML = monthHolidays.map(holiday => {
+      const gregorianDate = EthiopianDateConverter.toGregorian(
+        this.currYear,
+        this.currMonth,
+        holiday.day
+      );
+
+      return `
+        <li class="holiday-item">
+          <span class="holiday-date">
+            ${useGeez ? EthiopianCalendarUtils.toGeezNumeral(holiday.day) : holiday.day}
+          </span>
+          <div class="holiday-info">
+            <span class="holiday-name">
+              ${useGeez ? holiday.name : holiday.latinName}
+            </span>
+            <span class="holiday-gregorian">
+              ${gregorianDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })}
+            </span>
+          </div>
+        </li>
+      `;
+    }).join('');
   }
 }
 

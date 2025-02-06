@@ -21,15 +21,28 @@
     </div>
 
     <div class="ethiopian-time">
-      <label id="time-label">Ethiopian Time:</label>
-      <span id="ethiopian-time-display"></span>
+      <div class="current-date-time">
+        <span id="current-ethiopian-date"></span>
+        <div class="time-container">
+          <span id="time-label">Ethiopian Time:</span>
+          <span id="ethiopian-time-display"></span>
+        </div>
+      </div>
     </div>
 
-    <!-- Language Toggle -->
-
-
-    <header>
-      <div class="current-date"></div>
+    <!-- Calendar Header with Three Columns -->
+    <!-- <header>
+      <div class="month-navigation">
+        <div class="prev-month">
+          <span class="gregorian-label"></span>
+        </div>
+        <div class="current-month">
+          <span class="current-date"></span>
+        </div>
+        <div class="next-month">
+          <span class="gregorian-label"></span>
+        </div>
+      </div>
       <div class="icons">
         <span id="prev" class="material-symbols-rounded">
           <i class="fas fa-chevron-left"></i>
@@ -37,6 +50,27 @@
         <span id="next" class="material-symbols-rounded">
           <i class="fas fa-chevron-right"></i>
         </span>
+      </div>
+    </header> -->
+
+    <header>
+      <div class="month-navigation">
+        <div class="prev-month">
+          <span class="gregorian-label"></span>
+          <span id="prev" class="nav-icon">
+            <i class="fas fa-chevron-left"></i>
+          </span>
+        </div>
+        <div class="current-month">
+          <div class="ethiopian-month"></div>
+          <div class="gregorian-month"></div>
+        </div>
+        <div class="next-month">
+          <span id="next" class="nav-icon">
+            <i class="fas fa-chevron-right"></i>
+          </span>
+          <span class="gregorian-label"></span>
+        </div>
       </div>
     </header>
 
@@ -53,7 +87,7 @@
       <ul class="days"></ul>
     </div>
 
-    <!-- Holidays Section -->
+    <!-- Holidays Section with Gregorian Dates -->
     <div class="holidays-section">
       <h3>Holidays</h3>
       <ul class="holidays-list"></ul>

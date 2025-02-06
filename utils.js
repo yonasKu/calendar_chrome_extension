@@ -36,16 +36,42 @@ export class EthiopianCalendarUtils {
   // Numeral conversion utilities
   static toGeezNumeral(number) {
     if (number === 0) return '፩';
-    if (number > 100) return number.toString();
+    
+    // Special handling for years (numbers >= 100)
+    if (number >= 100) {
+        const hundreds = Math.floor(number / 100);
+        const remainder = number % 100;
+        
+        let result = '';
+        
+        // Add hundreds
+        if (hundreds > 1) {
+            result += this.toGeezNumeral(hundreds);
+        }
+        result += '፻'; // Add the hundred symbol
+        
+        // Add remainder if any
+        if (remainder > 0) {
+            result += this.toGeezNumeral(remainder);
+        }
+        
+        return result;
+    }
 
+    // Handle numbers less than 100
     let result = '';
     let remaining = number;
 
-    for (let i = GEEZ_NUMERALS.values.length - 1; i >= 0; i--) {
-      while (remaining >= GEEZ_NUMERALS.values[i]) {
-        result += GEEZ_NUMERALS.numbers[i];
-        remaining -= GEEZ_NUMERALS.values[i];
-      }
+    // Handle tens
+    if (remaining >= 10) {
+        const tensIndex = Math.floor(remaining / 10) + 8; // Index for tens symbols (፲,፳,፴,etc)
+        result += GEEZ_NUMERALS.numbers[tensIndex];
+        remaining %= 10;
+    }
+
+    // Handle ones
+    if (remaining > 0) {
+        result += GEEZ_NUMERALS.numbers[remaining - 1];
     }
 
     return result;
@@ -56,6 +82,7 @@ export class EthiopianCalendarUtils {
     const ethiopiaDate = this.getDateWithEthiopianTimezone(date);
     let hours = ethiopiaDate.getHours();
     let minutes = ethiopiaDate.getMinutes();
+    let seconds = ethiopiaDate.getSeconds();
 
     let ethiopianHours = ((hours + 6) % 12) || 12;
 
@@ -64,6 +91,7 @@ export class EthiopianCalendarUtils {
     return {
       hours: ethiopianHours,
       minutes: String(minutes).padStart(2, '0'),
+      seconds: String(seconds).padStart(2, '0'),
       timePeriod: timePeriod
     };
   }

@@ -29,8 +29,6 @@ body {
   padding: 10px;
 }
 
-
-
 .wrapper {
   width: var(--wrapper-width);
   min-width: 380px;
@@ -76,16 +74,134 @@ body {
 }
 
 header {
+  padding: 15px 10px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.month-navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 10px 15px 10px;
-  margin-bottom: 15px;
-  /* Reduced from 20px */
-  border-bottom: 1.5px solid var(--border-color);
+  width: 100%;
+  padding: 5px 0;
 }
 
-header .current-date {
+.prev-month, .next-month {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  color: var(--inactive-color);
+  font-weight: 500;
+}
+
+.prev-month {
+  justify-content: flex-start;
+}
+
+.next-month {
+  justify-content: flex-end;
+}
+
+.gregorian-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.current-month {
+  flex: 2;
+  text-align: center;
+}
+
+.date-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.ethiopian-full-date {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-color);
+  letter-spacing: 0.2px;
+}
+
+.gregorian-full-date {
+  font-size: 0.75rem;
+  color: var(--inactive-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nav-icon {
+  display: flex;
+  margin-left: 10px;
+  margin-right: 10px;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  background: var(--text-color);
+  color: var(--hover-bg);
+}
+
+.nav-icon:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.nav-icon.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--inactive-color);
+}
+
+/* Update calendar day styles for better hierarchy */
+.calendar .days li {
+  position: relative;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar .days li .gregorian-date {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 0.6rem;
+  color: var(--inactive-color);
+  font-weight: 500;
+}
+
+/* Update icon styles to be inline */
+.material-symbols-rounded {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.material-symbols-rounded:hover {
+  background: var(--hover-bg);
+}
+
+.material-symbols-rounded.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.current-date {
   font-size: 1.45rem;
   font-weight: 500;
   color: var(--text-color);
@@ -118,7 +234,6 @@ header .icons span:hover {
   display: flex;
   flex-direction: column;
   min-height: 320px;
-  /* Reduced from 380px */
   position: relative;
 }
 
@@ -133,7 +248,6 @@ header .icons span:hover {
 
 .calendar .weeks {
   margin-bottom: 12px;
-  /* Reduced from 15px */
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -153,7 +267,6 @@ header .icons span:hover {
 
 .calendar .days {
   margin-bottom: 10px;
-  /* Reduced from 20px */
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -163,20 +276,17 @@ header .icons span:hover {
   top: 0;
 }
 
-.calendar .days li {
-  width: calc((100% / 7) - 10px);
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+.calendar .days li .gregorian-date {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 0.65rem;
+  color: var(--inactive-color);
+}
+
+.calendar .days li .ethiopian-date {
   font-size: 1.1rem;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  position: relative;
-  margin: 2px 5px;
-  padding: 0 2px;
-  color: var(--text-color);
+  margin-top: 8px;
 }
 
 .calendar .days li:hover {
@@ -189,7 +299,12 @@ header .icons span:hover {
 
 .calendar .days li.active {
   background: var(--primary-color);
-  color: #fff;
+  color: white;
+  border-radius: 6px;
+}
+
+.calendar .days li.active .gregorian-date {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Holiday styles */
@@ -202,15 +317,15 @@ header .icons span:hover {
 .calendar .days li.holiday::after {
   content: "";
   position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 2px;
+  right: 2px;
   width: 4px;
   height: 4px;
   background-color: #d35400;
   border-radius: 50%;
 }
 
+/* Holiday tooltip */
 .calendar .days li.holiday:hover::before {
   content: attr(data-holiday);
   position: absolute;
@@ -224,6 +339,7 @@ header .icons span:hover {
   font-size: 0.85rem;
   white-space: nowrap;
   z-index: 1;
+  pointer-events: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -255,13 +371,11 @@ header .icons span:hover {
 /* Holidays section */
 .holidays-section {
   margin-top: 5px;
-  /* Reduced from 10px */
   padding: 12px 15px;
   border-top: 1.5px solid var(--border-color);
   background: var(--hover-bg);
   border-radius: 8px;
 }
-
 
 .holidays-section h3 {
   color: var(--text-color);
@@ -326,7 +440,6 @@ header .icons span:hover {
 
   .calendar {
     min-height: 340px;
-    /* Reduced from 400px */
   }
 
   .calendar .days li {
@@ -361,7 +474,6 @@ header .icons span:hover {
 
   .calendar {
     min-height: 300px;
-    /* Reduced from 360px */
   }
 
   .calendar .days li {
@@ -455,7 +567,6 @@ header .icons span:hover {
     color: #e0e0e0;
   }
 
-
   .calendar .weeks li {
     color: #e0e0e0;
   }
@@ -467,41 +578,142 @@ header .icons span:hover {
 
 /* Ethiopian Time Display */
 .ethiopian-time {
-  margin-top: 5px;
-  padding: 12px 15px;
-  border-top: 1.5px solid var(--border-color);
+  margin: 10px 0;
+  padding: 15px;
   background: var(--hover-bg);
   border-radius: 8px;
-  text-align: center;
 }
 
-.ethiopian-time label {
+.current-date-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+#current-ethiopian-date {
+  font-size: 1.1rem;
+  font-weight: 500;
   color: var(--text-color);
-  margin-right: 10px;
-  font-size: 0.95rem;
+}
+
+.time-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#time-label {
+  color: var(--text-color);
+  font-size: 0.9rem;
 }
 
 #ethiopian-time-display {
   font-weight: 500;
   color: var(--text-color);
+  font-size: 1.1rem;
 }
 
-/* Dark mode support for Ethiopian time */
-@media (prefers-color-scheme: dark) {
-  .ethiopian-time {
-    background: var(--hover-bg);
-  }
-
-  .ethiopian-time label,
-  #ethiopian-time-display {
-    color: var(--text-color);
-  }
-}
-
-/* Responsive adjustments for Ethiopian time */
 @media screen and (max-width: 480px) {
-  .ethiopian-time {
-    font-size: 0.9rem;
-    padding: 10px;
+  .current-date-time {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
   }
+  
+  .time-container {
+    text-align: center;
+  }
+}
+
+.icons span.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add these new styles */
+.date-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.gregorian-date {
+  font-size: 0.85rem;
+  color: var(--inactive-color);
+  text-align: center;
+}
+
+.current-date {
+  font-size: 1.45rem;
+  font-weight: 500;
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* Holiday item with Gregorian date */
+.holiday-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.holiday-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.holiday-name {
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.holiday-gregorian {
+  font-size: 0.75rem;
+  color: var(--inactive-color);
+  margin-top: 2px;
+}
+
+/* Calendar day with Gregorian date */
+.calendar .days li {
+  position: relative;
+}
+
+.calendar .days li .gregorian-day {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.65rem;
+  color: var(--inactive-color);
+}
+
+/* Add these styles */
+.current-date-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+#current-ethiopian-date {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.ethiopian-month {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.gregorian-month {
+  font-size: 0.75rem;
+  color: var(--inactive-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
