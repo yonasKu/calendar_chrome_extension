@@ -9,6 +9,7 @@ import { EthiopianDateConverter } from './converter.js';
 class EthiopianCalendarRenderer {
   constructor() {
     this.initializeCalendar();
+    this.initializeYearSelector();
     this.initializeTime();
     this.setupEventListeners();
     this.render();
@@ -23,6 +24,26 @@ class EthiopianCalendarRenderer {
     if (this.currMonth === undefined || this.currMonth < 0 || this.currMonth >= ETHIOPIAN_MONTHS.length) {
       console.error('Invalid month:', this.currMonth);
       this.currMonth = 0;
+    }
+  }
+
+  initializeYearSelector() {
+    const yearSelect = document.getElementById('yearSelect');
+    if (!yearSelect) return;
+
+    // Generate options for 10 years before and after current Ethiopian year
+    const currentYear = this.currYear;
+    const startYear = currentYear - 10;
+    const endYear = currentYear + 10;
+
+    for (let year = startYear; year <= endYear; year++) {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      if (year === currentYear) {
+        option.selected = true;
+      }
+      yearSelect.appendChild(option);
     }
   }
 
@@ -92,18 +113,32 @@ class EthiopianCalendarRenderer {
             this.updateTime();
         });
     }
+
+    const yearSelect = document.getElementById('yearSelect');
+    if (yearSelect) {
+      yearSelect.addEventListener('change', () => {
+        this.currYear = parseInt(yearSelect.value);
+        // Reset to first month of selected year
+        this.currMonth = 0;
+        this.render();
+      });
+    }
   }
 
   handleMonthChange(direction) {
     if (direction === "prev") {
       this.currMonth--;
-      if (this.currMonth < 0) {  // If we go below Meskerem (month 0)
-        return; // Stop at the beginning of the year
+      if (this.currMonth < 0) {
+        this.currMonth = 12;
+        this.currYear--;
+        document.getElementById('yearSelect').value = this.currYear;
       }
     } else {
       this.currMonth++;
-      if (this.currMonth > 12) { // If we go beyond Pagumé (month 12)
-        return; // Stop at the end of the year
+      if (this.currMonth > 12) {
+        this.currMonth = 0;
+        this.currYear++;
+        document.getElementById('yearSelect').value = this.currYear;
       }
     }
     this.render();
@@ -266,20 +301,24 @@ class EthiopianCalendarRenderer {
     // Get base holidays for this month
     let monthHolidays = ETHIOPIAN_HOLIDAYS[this.currMonth] || [];
 
-    // Get Easter-related holidays
-    const easterHolidays = EthiopianDateConverter.getEasterRelatedHolidays(this.currYear);
+    try {
+      // Get Easter-related holidays for the current selected year
+      const easterHolidays = EthiopianDateConverter.getEasterRelatedHolidays(this.currYear);
 
-    // Get Islamic holidays for current Ethiopian year
-    const islamicHolidays = EthiopianDateConverter.getIslamicHolidays(this.currYear)
-      .filter(holiday => holiday.month === this.currMonth);
+      // Get Islamic holidays for current selected year
+      const islamicHolidays = EthiopianDateConverter.getIslamicHolidays(this.currYear)
+        .filter(holiday => holiday.month === this.currMonth);
 
-    // Combine all holidays
-    monthHolidays = [
-      ...monthHolidays,
-      ...islamicHolidays,
-      ...(easterHolidays.goodFriday.month === this.currMonth ? [easterHolidays.goodFriday] : []),
-      ...(easterHolidays.easter.month === this.currMonth ? [easterHolidays.easter] : [])
-    ];
+      // Combine all holidays
+      monthHolidays = [
+        ...monthHolidays,
+        ...islamicHolidays,
+        ...(easterHolidays.goodFriday?.month === this.currMonth ? [easterHolidays.goodFriday] : []),
+        ...(easterHolidays.easter?.month === this.currMonth ? [easterHolidays.easter] : [])
+      ];
+    } catch (error) {
+      console.error('Error calculating holidays:', error);
+    }
 
     const holidaysListEl = document.querySelector('.holidays-list');
     if (!holidaysListEl) return;
@@ -310,10 +349,10 @@ class EthiopianCalendarRenderer {
             </span>
             <span class="holiday-gregorian">
               ${gregorianDate.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      })}
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              })}
             </span>
           </div>
         </li>

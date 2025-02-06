@@ -43,9 +43,9 @@ body {
 
 .controls-container {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
-
   padding: 0 10px;
 }
 
@@ -71,6 +71,21 @@ body {
   width: 18px;
   height: 18px;
   accent-color: var(--primary-color);
+}
+
+.year-selector select {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: var(--hover-bg);
+  color: var(--text-color);
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.year-selector select:hover {
+  border-color: var(--primary-color);
 }
 
 header {
@@ -573,6 +588,12 @@ header .icons span:hover {
 
   .language-toggle label {
     color: #e0e0e0;
+  }
+
+  .year-selector select {
+    background: #333;
+    color: #e0e0e0;
+    border-color: #404040;
   }
 }
 
