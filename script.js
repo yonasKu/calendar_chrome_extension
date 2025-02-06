@@ -299,10 +299,15 @@ class EthiopianCalendarRenderer {
         holiday.day
       );
 
+      // Add approximate date indicator for Islamic holidays
+      const dateIndicator = holiday.approximate ? 
+        '<span class="approximate-date" title="Date is approximate and subject to lunar sighting">*</span>' : '';
+
       return `
         <li class="holiday-item">
           <span class="holiday-date">
             ${useGeez ? EthiopianCalendarUtils.toGeezNumeral(holiday.day) : holiday.day}
+            ${dateIndicator}
           </span>
           <div class="holiday-info">
             <span class="holiday-name">
@@ -310,10 +315,11 @@ class EthiopianCalendarRenderer {
             </span>
             <span class="holiday-gregorian">
               ${gregorianDate.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      })}
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+              ${holiday.note ? `<span class="holiday-note">(${holiday.note})</span>` : ''}
             </span>
           </div>
         </li>
