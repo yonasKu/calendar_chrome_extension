@@ -151,6 +151,14 @@ class EthiopianCalendarRenderer {
       ETHIOPIAN_MONTHS[12].days = EthiopianCalendarUtils.getPagumeDays(this.currYear);
     }
 
+    // Update weekday names based on language selection
+    const weeksList = document.querySelector('.weeks');
+    if (weeksList) {
+      weeksList.innerHTML = WEEK_DAYS[useGeez ? 'amharic' : 'latin']
+        .map(day => `<li data-geez="${useGeez}">${day}</li>`)
+        .join('');
+    }
+
     // Disable navigation buttons at year boundaries
     const prevButton = document.getElementById('prev');
     const nextButton = document.getElementById('next');

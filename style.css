@@ -41,51 +41,141 @@ body {
   box-sizing: border-box;
 }
 
+/* Controls container styling */
 .controls-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  padding: 0 10px;
+  margin-bottom: 12px;
+  padding: 0 5px;
 }
 
+/* Language toggle styling */
 .language-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: var(--hover-bg);
-  padding: 8px 15px;
+  /* padding: 6px 12px; */
+  padding: 4px 10px;
+  height: 28px;
   border-radius: 20px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.language-toggle:hover {
+  border-color: var(--primary-color);
 }
 
 .language-toggle label {
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--text-color);
   user-select: none;
-  white-space: nowrap;
+  font-weight: 500;
 }
 
 .language-toggle input[type="checkbox"] {
-  cursor: pointer;
-  width: 18px;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 32px;
   height: 18px;
-  accent-color: var(--primary-color);
+  background: var(--border-color);
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+.language-toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 2px;
+  border-radius: 50%;
+  left: 2px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.language-toggle input[type="checkbox"]:checked {
+  background: var(--primary-color);
+}
+
+.language-toggle input[type="checkbox"]:checked::before {
+  left: 18px;
+}
+
+/* Year selector styling */
+.year-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.year-selector::after {
+  content: "E.C.";
+  font-size: 0.6rem;
+  color: var(--inactive-color);
+  margin-left: 4px;
+}
+
+/* Year selector styling */
 .year-selector select {
-  padding: 8px 15px;
-  border-radius: 20px;
+  padding: 4px 28px 4px 10px;
+  /* Reduced vertical padding */
+  border-radius: 16px;
+  /* Slightly reduced for more compact look */
   border: 1px solid var(--border-color);
   background: var(--hover-bg);
   color: var(--text-color);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   cursor: pointer;
   outline: none;
+  min-width: 90px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  /* Slightly smaller dropdown arrow */
+  height: 28px;
+  /* Fixed height for more compact look */
 }
 
 .year-selector select:hover {
   border-color: var(--primary-color);
+}
+
+.year-selector select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.1);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .language-toggle input[type="checkbox"] {
+    background: #666;
+  }
+
+  .language-toggle input[type="checkbox"]::before {
+    background: #242424;
+  }
+
+  .year-selector select {
+    background-color: #333;
+  }
+
+  .language-toggle,
+  .year-selector select {
+    border-color: #404040;
+  }
 }
 
 header {
@@ -102,7 +192,8 @@ header {
   padding: 5px 0;
 }
 
-.prev-month, .next-month {
+.prev-month,
+.next-month {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -266,18 +357,21 @@ header .icons span:hover {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 5px;
+  padding: 0;
   position: relative;
 }
 
 .calendar .weeks li {
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text-color);
-  width: calc((100% / 7) - 12px);
-  padding: 5px 2px;
-  margin: 0 6px;
+  width: calc(100% / 7);
+  padding: 5px 1px;
+  margin: 0;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .calendar .days {
@@ -365,14 +459,15 @@ header .icons span:hover {
 }
 
 .calendar .weeks li[data-geez="true"] {
-  font-size: 0.92rem;
-  padding: 5px 2px;
-  letter-spacing: 0.3px;
-  width: calc((100% / 7) - 12px);
+  font-size: 0.8rem;
+  font-family: "Noto Sans Ethiopic", sans-serif;
+  letter-spacing: 0;
+  padding: 5px 1px;
+  width: calc(100% / 7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 0 6px;
+  margin: 0;
 }
 
 .calendar .days li[data-geez="true"] {
@@ -597,53 +692,66 @@ header .icons span:hover {
   }
 }
 
-/* Ethiopian Time Display */
+/* Update Ethiopian Time Display styles */
+/* Update Ethiopian Time Display styles */
 .ethiopian-time {
-  margin: 10px 0;
-  padding: 15px;
+  margin: 8px 0;
+  padding: 10px;
   background: var(--hover-bg);
   border-radius: 8px;
-}
-
-.current-date-time {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 15px;
 }
 
+/* Left side - Date container */
 #current-ethiopian-date {
+  width: 48%;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
+/* Right side - Time container */
 .time-container {
+  width: 48%;
   display: flex;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  /* Changed from flex-end to flex-start */
 }
 
 #time-label {
-  color: var(--text-color);
-  font-size: 0.9rem;
+  color: var(--inactive-color);
+  font-size: 0.8rem;
+  margin-bottom: 2px;
 }
 
 #ethiopian-time-display {
   font-weight: 500;
   color: var(--text-color);
-  font-size: 1.1rem;
+  font-size: 0.95rem;
 }
 
+#time-period {
+  font-size: 0.8rem;
+  color: var(--inactive-color);
+  margin-top: 2px;
+}
+
+/* Remove these media queries if they exist */
 @media screen and (max-width: 480px) {
   .current-date-time {
-    flex-direction: column;
+    flex-direction: row;
+    /* Keep it as row even on mobile */
     gap: 8px;
     align-items: center;
   }
-  
+
   .time-container {
-    text-align: center;
+    text-align: right;
   }
 }
 
@@ -737,4 +845,18 @@ header .icons span:hover {
   color: var(--inactive-color);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+@media screen and (max-width: 480px) {
+  .calendar .weeks li[data-geez="true"] {
+    font-size: 0.75rem;
+    padding: 5px 0;
+    width: calc(100% / 7);
+  }
+
+  .calendar .weeks li {
+    width: calc(100% / 7);
+    margin: 0;
+    padding: 5px 0;
+  }
 }
