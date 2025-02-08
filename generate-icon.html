@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Icons</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            font-family: sans-serif;
+            background: #f5f5f5;
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .style-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .style-group h3 {
+            margin: 0;
+            color: #666;
+        }
+        .icon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #8e44ad;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(142, 68, 173, 0.2);
+        }
+        button:hover {
+            background: #73368a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+        }
+        .preview-bg {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Icon Generator</h1>
+    <div class="controls">
+        <button onclick="downloadStyle('with-bg')">Download With Background</button>
+        <button onclick="downloadStyle('no-bg')">Download Without Background</button>
+    </div>
+    <div class="preview">
+        <div class="style-group">
+            <h3>With Background</h3>
+            <div class="preview-bg" id="with-bg"></div>
+        </div>
+        <div class="style-group">
+            <h3>Without Background</h3>
+            <div class="preview-bg" id="no-bg"></div>
+        </div>
+    </div>
+
+    <script>
+        const sizes = [16, 48, 128];
+
+        // Create canvases for each style and size
+        ['with-bg', 'no-bg'].forEach(style => {
+            const container = document.getElementById(style);
+            const previewDiv = document.createElement('div');
+            previewDiv.style.display = 'flex';
+            previewDiv.style.gap = '20px';
+            
+            sizes.forEach(size => {
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'icon-container';
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                canvas.id = `${style}-${size}`;
+                canvas.style.border = '1px solid #eee';
+                canvas.style.borderRadius = '4px';
+                canvas.style.width = '128px';
+                canvas.style.height = '128px';
+                
+                const label = document.createElement('div');
+                label.textContent = `${size}x${size}`;
+                
+                iconContainer.appendChild(canvas);
+                iconContainer.appendChild(label);
+                previewDiv.appendChild(iconContainer);
+                
+                generateIcon(canvas, style === 'with-bg');
+            });
+            
+            container.appendChild(previewDiv);
+        });
+
+        function generateIcon(canvas, withBackground) {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+
+            if (withBackground) {
+                // Create gradient background
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#9b59b6');
+                gradient.addColorStop(1, '#8e44ad');
+
+                // Background with rounded corners
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.roundRect(0, 0, size, size, size * 0.2);
+                ctx.fill();
+
+                // Add subtle inner shadow
+                ctx.save();
+                ctx.clip();
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                ctx.shadowBlur = size * 0.1;
+                ctx.shadowOffsetY = size * 0.02;
+                ctx.fillRect(0, 0, size, size);
+                ctx.restore();
+            }
+
+            // Text settings
+            ctx.fillStyle = withBackground ? 'white' : '#8e44ad';
+            ctx.font = `bold ${size * 0.95}px "Noto Sans Ethiopic"`; // Increased font size to 95%
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Adjust vertical position slightly
+            const yOffset = size * 0.02; // Small adjustment for optical centering
+            
+            // Add shadow/glow effect
+            ctx.shadowColor = withBackground ? 
+                'rgba(0, 0, 0, 0.3)' : 
+                'rgba(142, 68, 173, 0.2)';
+            ctx.shadowBlur = size * 0.1;
+            ctx.shadowOffsetY = withBackground ? size * 0.02 : 0;
+
+            // Draw text
+            ctx.fillText('፴', size / 2, size / 2 + yOffset);
+
+            // Add extra glow for non-background version
+            if (!withBackground) {
+                ctx.shadowColor = 'rgba(142, 68, 173, 0.1)';
+                ctx.shadowBlur = size * 0.2;
+                ctx.fillText('፴', size / 2, size / 2 + yOffset);
+            }
+        }
+
+        function downloadStyle(style) {
+            sizes.forEach(size => {
+                const canvas = document.getElementById(`${style}-${size}`);
+                const link = document.createElement('a');
+                link.download = `icon${size}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html> 

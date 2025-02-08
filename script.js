@@ -13,6 +13,7 @@ class EthiopianCalendarRenderer {
     this.initializeTime();
     this.setupEventListeners();
     this.render();
+    this.initializeTabs();
   }
 
   initializeCalendar() {
@@ -66,24 +67,24 @@ class EthiopianCalendarRenderer {
     // Update time display
     timeLabel.textContent = useGeez ? "የኢትዮጵያ ሰዓት፡" : "Ethiopian Time:";
     timeDisplay.textContent = useGeez
-        ? `${EthiopianCalendarUtils.toGeezNumeral(time.hours)}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.minutes))}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.seconds))} ${time.timePeriod.amharic}`
-        : `${time.hours}:${time.minutes}:${time.seconds} ${time.timePeriod.latin}`;
+      ? `${EthiopianCalendarUtils.toGeezNumeral(time.hours)}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.minutes))}:${EthiopianCalendarUtils.toGeezNumeral(parseInt(time.seconds))} ${time.timePeriod.amharic}`
+      : `${time.hours}:${time.minutes}:${time.seconds} ${time.timePeriod.latin}`;
 
     // Update date display with both Ethiopian and Gregorian dates
     const currentMonth = ETHIOPIAN_MONTHS[todayEthiopian.month];
     const monthName = useGeez ? currentMonth.amharic : currentMonth.name;
     const yearDisplay = useGeez
-        ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.year)
-        : todayEthiopian.year;
+      ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.year)
+      : todayEthiopian.year;
     const dayDisplay = useGeez
-        ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.day)
-        : todayEthiopian.day;
+      ? EthiopianCalendarUtils.toGeezNumeral(todayEthiopian.day)
+      : todayEthiopian.day;
 
     // Format Gregorian date
     const gregorianDate = now.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
 
     // Combine Ethiopian and Gregorian dates
@@ -93,25 +94,46 @@ class EthiopianCalendarRenderer {
     `;
   }
 
+  initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        // Add active class to clicked button
+        button.classList.add('active');
+
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.add('hidden');
+        });
+
+        // Show selected tab content
+        const tabId = button.dataset.tab;
+        document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+      });
+    });
+  }
+
   setupEventListeners() {
     document.querySelector("#prev").addEventListener("click", () => {
-        if (!document.querySelector("#prev").classList.contains('disabled')) {
-            this.handleMonthChange("prev");
-        }
+      if (!document.querySelector("#prev").classList.contains('disabled')) {
+        this.handleMonthChange("prev");
+      }
     });
-    
+
     document.querySelector("#next").addEventListener("click", () => {
-        if (!document.querySelector("#next").classList.contains('disabled')) {
-            this.handleMonthChange("next");
-        }
+      if (!document.querySelector("#next").classList.contains('disabled')) {
+        this.handleMonthChange("next");
+      }
     });
 
     const useGeezCheckbox = document.getElementById('useGeez');
     if (useGeezCheckbox) {
-        useGeezCheckbox.addEventListener('change', () => {
-            this.render();
-            this.updateTime();
-        });
+      useGeezCheckbox.addEventListener('change', () => {
+        this.render();
+        this.updateTime();
+      });
     }
 
     const yearSelect = document.getElementById('yearSelect');
@@ -122,6 +144,18 @@ class EthiopianCalendarRenderer {
         this.currMonth = 0;
         this.render();
       });
+    }
+
+    // Add conversion type toggle listeners
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', () => this.handleConversionTypeToggle(button));
+    });
+
+    // Add date input change listener
+    const dateInput = document.getElementById('gregorianDateInput');
+    if (dateInput) {
+      dateInput.addEventListener('change', () => this.handleDateConversion());
     }
   }
 
@@ -357,15 +391,66 @@ class EthiopianCalendarRenderer {
             </span>
             <span class="holiday-gregorian">
               ${gregorianDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-              })}
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })}
             </span>
           </div>
         </li>
       `;
     }).join('');
+  }
+
+  handleConversionTypeToggle(clickedButton) {
+    // Update toggle buttons
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    clickedButton.classList.add('active');
+
+    // Update labels based on conversion type
+    const isToEthiopian = clickedButton.dataset.convert === 'toEthiopian';
+    document.getElementById('fromLabel').textContent = 
+      isToEthiopian ? 'Gregorian Date:' : 'Ethiopian Date:';
+    document.getElementById('resultLabel').textContent = 
+      isToEthiopian ? 'Ethiopian Date:' : 'Gregorian Date:';
+
+    // Clear previous result
+    document.getElementById('conversionResult').textContent = 
+      'Select a date above to convert';
+  }
+
+  handleDateConversion() {
+    const dateInput = document.getElementById('gregorianDateInput');
+    const resultDisplay = document.getElementById('conversionResult');
+    const useGeez = document.getElementById('useGeez')?.checked || false;
+
+    if (!dateInput.value) {
+      resultDisplay.textContent = 'Please select a date';
+      return;
+    }
+
+    try {
+      const gregorianDate = new Date(dateInput.value);
+      const ethiopianDate = EthiopianDateConverter.toEthiopian(gregorianDate);
+
+      const monthName = useGeez 
+        ? ETHIOPIAN_MONTHS[ethiopianDate.month].amharic 
+        : ETHIOPIAN_MONTHS[ethiopianDate.month].name;
+
+      const day = useGeez 
+        ? EthiopianCalendarUtils.toGeezNumeral(ethiopianDate.day) 
+        : ethiopianDate.day;
+      const year = useGeez 
+        ? EthiopianCalendarUtils.toGeezNumeral(ethiopianDate.year) 
+        : ethiopianDate.year;
+
+      resultDisplay.textContent = `Ethiopian Date: ${monthName} ${day}, ${year}`;
+    } catch (error) {
+      resultDisplay.textContent = 'Invalid date';
+      console.error('Conversion error:', error);
+    }
   }
 }
 
@@ -377,4 +462,112 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (error) {
     console.error("❌ Initialization Error:", error);
   }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const menuBtn = document.getElementById('menuBtn');
+  const menuDropdown = document.getElementById('menuDropdown');
+  const menuItems = document.querySelectorAll('.menu-item');
+  const views = document.querySelectorAll('.view');
+
+  // Toggle menu
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menuDropdown.classList.toggle('active');
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!menuDropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+      menuDropdown.classList.remove('active');
+    }
+  });
+
+  // Handle menu item clicks
+  menuItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      // Remove active class from all items
+      menuItems.forEach(i => i.classList.remove('active'));
+      // Remove active class from all views
+      views.forEach(view => view.classList.remove('active'));
+
+      // Add active class to clicked item
+      item.classList.add('active');
+
+      // Show corresponding view
+      const viewId = `${item.dataset.tab}-view`;
+      document.getElementById(viewId).classList.add('active');
+
+      // Update header title based on active view
+      const headerTitle = document.querySelector('.app-header h2');
+      headerTitle.textContent = item.dataset.tab === 'calendar' ?
+        'Ethiopian Calendar' : 'Date Converter';
+
+      // Hide menu
+      menuDropdown.classList.remove('active');
+    });
+  });
+
+  // Date Converter Functionality
+  const toggleBtns = document.querySelectorAll('.toggle-btn');
+  const gregorianInput = document.getElementById('gregorianDateInput');
+  const resultDisplay = document.getElementById('conversionResult');
+  const fromLabel = document.getElementById('fromLabel');
+  const resultLabel = document.getElementById('resultLabel');
+
+  let currentDirection = 'toEthiopian'; // Default conversion direction
+
+  // Toggle conversion direction
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDirection = btn.dataset.convert;
+
+      // Update labels based on conversion direction
+      if (currentDirection === 'toEthiopian') {
+        fromLabel.textContent = 'Gregorian Date:';
+        resultLabel.textContent = 'Ethiopian Date:';
+      } else {
+        fromLabel.textContent = 'Ethiopian Date:';
+        resultLabel.textContent = 'Gregorian Date:';
+      }
+
+      // Clear previous result
+      resultDisplay.textContent = 'Select a date to convert';
+      gregorianInput.value = '';
+    });
+  });
+
+  // Handle date input changes
+  gregorianInput.addEventListener('change', () => {
+    if (!gregorianInput.value) {
+      resultDisplay.textContent = 'Select a date to convert';
+      return;
+    }
+
+    const inputDate = new Date(gregorianInput.value);
+    
+    if (currentDirection === 'toEthiopian') {
+      // Convert Gregorian to Ethiopian
+      const ethiopianDate = EthiopianDateConverter.toEthiopian(inputDate);
+      const monthName = ETHIOPIAN_MONTHS[ethiopianDate.month].name;
+      resultDisplay.textContent = `${ethiopianDate.day} ${monthName} ${ethiopianDate.year}`;
+    } else {
+      // Convert Ethiopian to Gregorian
+      try {
+        // Parse the input date (assuming format: YYYY-MM-DD)
+        const [year, month, day] = gregorianInput.value.split('-').map(Number);
+        const gregorianDate = EthiopianDateConverter.toGregorian(year, month - 1, day);
+        
+        // Format the result
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        resultDisplay.textContent = gregorianDate.toLocaleDateString('en-US', options);
+      } catch (error) {
+        resultDisplay.textContent = 'Invalid date format';
+      }
+    }
+  });
 });

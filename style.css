@@ -178,10 +178,17 @@ body {
   }
 }
 
+/* Month Navigation Header */
 header {
+  top: 60px; /* Position below the app header */
+  z-index: 99;
+  background: white;
   padding: 15px 10px;
-  margin-bottom: 15px;
+  margin: -15px -15px 15px -15px;
   border-bottom: 1px solid var(--border-color);
+  height: 70px; /* Fixed height */
+  display: flex;
+  align-items: center;
 }
 
 .month-navigation {
@@ -189,7 +196,7 @@ header {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 5px 0;
+  padding: 0 5px;
 }
 
 .prev-month,
@@ -200,6 +207,7 @@ header {
   flex: 1;
   color: var(--inactive-color);
   font-weight: 500;
+  min-width: 100px; /* Ensure consistent width */
 }
 
 .prev-month {
@@ -210,15 +218,86 @@ header {
   justify-content: flex-end;
 }
 
-.gregorian-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .current-month {
   flex: 2;
   text-align: center;
+  padding: 0 10px;
+}
+
+.ethiopian-month {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.gregorian-month {
+  font-size: 0.85rem;
+  color: var(--inactive-color);
+}
+
+.nav-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-icon:hover {
+  background: var(--hover-bg);
+  color: var(--primary-color);
+}
+
+.gregorian-label {
+  font-size: 0.8rem;
+  color: var(--inactive-color);
+  white-space: nowrap;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  header {
+    background: #242424;
+    border-bottom-color: #404040;
+  }
+  
+  .ethiopian-month {
+    color: #e0e0e0;
+  }
+  
+  .nav-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  header {
+    top: 50px; /* Adjust for smaller app header on mobile */
+    height: 65px;
+    padding: 12px 8px;
+  }
+
+  .prev-month,
+  .next-month {
+    min-width: 80px;
+  }
+
+  .ethiopian-month {
+    font-size: 1rem;
+  }
+
+  .gregorian-month {
+    font-size: 0.8rem;
+  }
+
+  .gregorian-label {
+    font-size: 0.75rem;
+  }
 }
 
 .date-wrapper {
@@ -834,12 +913,6 @@ header .icons span:hover {
   font-weight: 500;
 }
 
-.ethiopian-month {
-  font-size: 1.35rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
 .gregorian-month {
   font-size: 0.75rem;
   color: var(--inactive-color);
@@ -859,4 +932,254 @@ header .icons span:hover {
     margin: 0;
     padding: 5px 0;
   }
+}
+
+/* Remove the old tab-navigation styles and add these new styles */
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5px 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app-header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.menu-container {
+  position: relative;
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text-color);
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.menu-btn:hover {
+  background-color: var(--hover-bg);
+}
+
+.menu-dropdown {
+  display: none;
+}
+
+.menu-dropdown.active {
+  display: block;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.menu-item i {
+  font-size: 1rem;
+  width: 20px;
+}
+
+.menu-item:hover {
+  background: var(--hover-bg);
+}
+
+.menu-item.active {
+  color: var(--primary-color);
+  background: rgba(142, 68, 173, 0.1);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .menu-dropdown {
+    background: #242424;
+    border: 1px solid var(--border-color);
+  }
+}
+
+/* Converter Styles */
+.converter-container {
+  padding: 20px;
+  background: transparent;
+  border-radius: 12px;
+}
+
+.converter-container h3 {
+  margin-bottom: 25px;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* Conversion Type Toggle */
+.conversion-toggle {
+  display: flex;
+  gap: 8px;
+  background: var(--hover-bg);
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn i {
+  font-size: 0.9rem;
+}
+
+.toggle-btn.active {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 8px rgba(142, 68, 173, 0.25);
+}
+
+.toggle-btn:hover:not(.active) {
+  background: rgba(142, 68, 173, 0.1);
+}
+
+/* Converter Sections */
+.converter-section {
+  background: var(--hover-bg);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.section-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.section-header h4 {
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Date Input Styling */
+.date-input-group {
+  position: relative;
+}
+
+.date-input-group input[type="date"] {
+  width: 100%;
+  padding: 14px 40px 14px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: white;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.date-input-group input[type="date"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+  outline: none;
+}
+
+.input-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  pointer-events: none;
+}
+
+/* Result Display */
+.result-display {
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .converter-section {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .date-input-group input[type="date"],
+  .result-display {
+    background: #333;
+    color: #e0e0e0;
+    border-color: #404040;
+  }
+
+  .toggle-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .date-input-group input[type="date"]:focus {
+    box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.2);
+  }
+}
+
+/* View handling */
+.view {
+  display: none; /* Hide all views by default */
+  width: 100%;
+}
+
+.view.active {
+  display: block; /* Show only active view */
 }
