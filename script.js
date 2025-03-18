@@ -470,6 +470,42 @@ document.addEventListener('DOMContentLoaded', function () {
   const menuItems = document.querySelectorAll('.menu-item');
   const views = document.querySelectorAll('.view');
 
+  // Add logo to the header
+  const headerTitle = document.querySelector('.app-header h2');
+  const headerContainer = headerTitle.parentElement;
+  
+  // Create logo container
+  const logoContainer = document.createElement('div');
+  logoContainer.className = 'logo-container';
+  logoContainer.style.cssText = `
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 10px;
+  `;
+
+  // Create and style logo
+  const logo = document.createElement('img');
+  logo.src = 'Lion.png';
+  logo.alt = 'Yonas Logo';
+  logo.style.cssText = `
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    border-radius: 50%;
+  `;
+
+  // Add click handler to logo
+  logoContainer.addEventListener('click', () => {
+    window.open('https://yonasku.vercel.app/', '_blank');
+  });
+
+  // Add logo to container
+  logoContainer.appendChild(logo);
+
+  // Insert logo before the title
+  headerContainer.insertBefore(logoContainer, headerTitle);
+
   // Toggle menu
   menuBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -570,4 +606,15 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
+
+  // Add footer
+  const wrapper = document.querySelector('.wrapper');
+  const footer = document.createElement('div');
+  footer.className = 'footer';
+  footer.innerHTML = `
+    Developed by <a href="https://yonasku.vercel.app/" target="_blank" rel="noopener noreferrer">Yonas Kumelachew</a>
+    <br>
+    © ${new Date().getFullYear()} All rights reserved
+  `;
+  wrapper.appendChild(footer);
 });

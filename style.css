@@ -940,15 +940,19 @@ header .icons span:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 5px 15px;
-  margin-bottom: 15px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 10px 15px;
 }
 
 .app-header h2 {
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--text-color);
+}
+
+.logo-container:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 
 .menu-container {
@@ -1182,4 +1186,63 @@ header .icons span:hover {
 
 .view.active {
   display: block; /* Show only active view */
+}
+
+/* Updated logo styles */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.logo-container img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container:hover img {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Footer styles */
+.footer {
+  margin-top: 20px;
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  color: var(--inactive-color);
+  font-size: 0.85rem;
+}
+
+.footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer a:hover {
+  color: var(--text-color);
+}
+
+/* Dark mode support for footer */
+@media (prefers-color-scheme: dark) {
+  .footer {
+    border-top-color: var(--border-color);
+  }
+  
+  .footer a:hover {
+    color: #fff;
+  }
 }
